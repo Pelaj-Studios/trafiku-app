@@ -13,12 +13,14 @@ val releaseServerBaseUrl = providers.gradleProperty("trafiku.server.baseUrl")
         val uri = runCatching { URI(value) }.getOrNull()
         if (
             uri == null ||
-            uri.scheme !in setOf("http", "https") ||
+            uri.scheme != "https" ||
             uri.host.isNullOrBlank() ||
+            uri.rawQuery != null ||
+            uri.rawFragment != null ||
             !value.endsWith("/")
         ) {
             throw GradleException(
-                "trafiku.server.baseUrl must be an absolute HTTP or HTTPS URL with a final slash.",
+                "trafiku.server.baseUrl must be an absolute HTTPS URL with a final slash and no query or fragment.",
             )
         }
         value
