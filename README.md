@@ -161,6 +161,12 @@ app/src/main/java/com/pelajstudios/trafiku/
 
 Room supplies the stored bus network. The repository refreshes that data from the server. The user interface observes repository and location state through screen-level state holders.
 
+## Copyright and distribution
+
+Trafiku is proprietary software. Only Pelaj Studios can offer or distribute this application or its builds. This repository grants no software license. This restriction covers current project content and previous commits, subject to GitHub's Terms of Service and third-party license terms.
+
+Read the [copyright and distribution notice](COPYRIGHT.md) for the complete terms.
+
 ## Documentation
 
 - Read [Architecture](docs/ARCHITECTURE.md) for the application structure and data flows.
