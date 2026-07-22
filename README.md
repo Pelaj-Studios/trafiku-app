@@ -4,6 +4,25 @@ Trafiku is an Android TV application for bus passenger information. It shows the
 
 The interface shows static passenger text in Albanian, Serbian in Latin script, and English. Each translation appears on a separate line. The application uses Jetpack Compose and supports D-pad input from an Android TV remote.
 
+## Screenshots
+
+![Route tracking with trilingual passenger information](docs/images/route-tracking.png)
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="docs/images/operator-actions.png" alt="Focused operator action panel">
+    </td>
+    <td width="50%">
+      <img src="docs/images/advertisement.png" alt="Advertisement playback with route header">
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><strong>Remote actions</strong></td>
+    <td align="center"><strong>Advertisement playback</strong></td>
+  </tr>
+</table>
+
 ## Features
 
 - Select one bus line and one direction.
