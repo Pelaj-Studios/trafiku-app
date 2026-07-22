@@ -1,0 +1,40 @@
+# Gradle and Kotlin
+.gradle/
+.kotlin/
+**/build/
+
+# Local Android configuration
+local.properties
+
+# Android Studio and IntelliJ IDEA
+.idea/
+*.iml
+
+# Visual Studio Code
+.vscode/
+
+# Local editor files
+*.swp
+*.swo
+*~
+
+# Android build output and signing material
+*.aab
+*.apk
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Service configuration can contain credentials.
+google-services.json
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
