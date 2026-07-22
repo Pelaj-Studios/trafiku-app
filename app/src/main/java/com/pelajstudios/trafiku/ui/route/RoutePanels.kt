@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -29,13 +30,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.material3.Button
+import androidx.tv.material3.ButtonDefaults
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import com.pelajstudios.trafiku.R
 import com.pelajstudios.trafiku.ui.app.GpsUiStatus
-import com.pelajstudios.trafiku.ui.app.trilingualStringResource
 import com.pelajstudios.trafiku.ui.app.TrafikuUiState
+import com.pelajstudios.trafiku.ui.app.trilingualStringResource
+import com.pelajstudios.trafiku.ui.theme.TrafikuMutedText
+import com.pelajstudios.trafiku.ui.theme.TrafikuPanelActionBackground
+import com.pelajstudios.trafiku.ui.theme.TrafikuRed
 import com.pelajstudios.trafiku.ui.theme.TrafikuSurface
+import com.pelajstudios.trafiku.ui.theme.TrafikuText
 
 @Composable
 internal fun ActionPanel(
@@ -48,27 +54,29 @@ internal fun ActionPanel(
 ) {
     OverlayPanel(title = trilingualStringResource(R.string.actions), onClose = onClose) { firstFocus ->
         GpsStatusBadge(status = state.gpsStatus)
-        Button(
+        PanelActionButton(
+            text = trilingualStringResource(R.string.change_line),
             onClick = onChangeLine,
             modifier = Modifier
                 .focusRequester(firstFocus)
                 .fillMaxWidth(),
-        ) {
-            PanelButtonLabel(trilingualStringResource(R.string.change_line))
-        }
-        Button(onClick = onChangeDirection, modifier = Modifier.fillMaxWidth()) {
-            PanelButtonLabel(trilingualStringResource(R.string.change_direction))
-        }
-        Button(
+        )
+        PanelActionButton(
+            text = trilingualStringResource(R.string.change_direction),
+            onClick = onChangeDirection,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        PanelActionButton(
+            text = trilingualStringResource(R.string.refresh_data),
             onClick = onRefresh,
             enabled = !state.isRefreshing,
             modifier = Modifier.fillMaxWidth(),
-        ) {
-            PanelButtonLabel(trilingualStringResource(R.string.refresh_data))
-        }
-        Button(onClick = onShowGpsDetails, modifier = Modifier.fillMaxWidth()) {
-            PanelButtonLabel(trilingualStringResource(R.string.gps_status))
-        }
+        )
+        PanelActionButton(
+            text = trilingualStringResource(R.string.gps_status),
+            onClick = onShowGpsDetails,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -84,37 +92,37 @@ internal fun GpsPanel(
         title = trilingualStringResource(R.string.gps_status),
         onClose = onClose,
     ) { firstFocus ->
-        Button(
+        PanelActionButton(
+            text = trilingualStringResource(R.string.close),
             onClick = onClose,
             modifier = Modifier
                 .focusRequester(firstFocus)
                 .fillMaxWidth(),
-        ) {
-            PanelButtonLabel(trilingualStringResource(R.string.close))
-        }
+        )
         if (state.gpsStatus == GpsUiStatus.LocationPermissionRequired) {
-            Button(
+            PanelActionButton(
+                text = trilingualStringResource(R.string.allow_location),
                 onClick = onRequestLocationPermission,
                 modifier = Modifier.fillMaxWidth(),
-            ) {
-                PanelButtonLabel(trilingualStringResource(R.string.allow_location))
-            }
+            )
         }
         if (state.gpsStatus is GpsUiStatus.UsbPermissionRequired) {
-            Button(onClick = onRequestUsbPermission, modifier = Modifier.fillMaxWidth()) {
-                PanelButtonLabel(trilingualStringResource(R.string.allow_usb))
-            }
+            PanelActionButton(
+                text = trilingualStringResource(R.string.allow_usb),
+                onClick = onRequestUsbPermission,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
         if (state.simulationSupported) {
-            Button(onClick = onToggleSimulation, modifier = Modifier.fillMaxWidth()) {
-                PanelButtonLabel(
-                    if (state.simulationEnabled) {
-                        trilingualStringResource(R.string.stop_simulator)
-                    } else {
-                        trilingualStringResource(R.string.start_simulator)
-                    },
-                )
-            }
+            PanelActionButton(
+                text = if (state.simulationEnabled) {
+                    trilingualStringResource(R.string.stop_simulator)
+                } else {
+                    trilingualStringResource(R.string.start_simulator)
+                },
+                onClick = onToggleSimulation,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
@@ -143,18 +151,13 @@ private fun OverlayPanel(
                 .background(TrafikuSurface),
         ) {
             Column(
-                modifier = Modifier.padding(22.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 28.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                Text(
-                    text = title,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 20.sp,
-                        lineHeight = 23.sp,
-                    ),
-                )
-                Spacer(modifier = Modifier.height(2.dp))
+                PanelTitle(title)
+                Spacer(modifier = Modifier.height(4.dp))
                 content(firstFocus)
             }
         }
@@ -205,13 +208,85 @@ internal fun ExitConfirmation(onExit: () -> Unit, onCancel: () -> Unit) {
 }
 
 @Composable
-private fun PanelButtonLabel(text: String) {
-    Text(
-        text = text,
-        maxLines = 3,
-        style = MaterialTheme.typography.labelLarge.copy(
-            fontSize = 16.sp,
-            lineHeight = 19.sp,
+private fun PanelActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    val shape = RoundedCornerShape(10.dp)
+    Button(
+        onClick = onClick,
+        modifier = modifier.height(76.dp),
+        enabled = enabled,
+        scale = ButtonDefaults.scale(
+            focusedScale = 1.0F,
+            pressedScale = 0.98F,
         ),
-    )
+        shape = ButtonDefaults.shape(
+            shape = shape,
+            focusedShape = shape,
+            pressedShape = shape,
+            disabledShape = shape,
+        ),
+        colors = ButtonDefaults.colors(
+            containerColor = TrafikuPanelActionBackground,
+            contentColor = TrafikuText,
+            focusedContainerColor = TrafikuRed,
+            focusedContentColor = Color.White,
+            pressedContainerColor = TrafikuRed,
+            pressedContentColor = Color.White,
+            disabledContainerColor = TrafikuPanelActionBackground.copy(alpha = 0.45F),
+            disabledContentColor = TrafikuMutedText.copy(alpha = 0.55F),
+        ),
+        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 10.dp),
+    ) {
+        PanelButtonLabel(
+            text = text,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+private fun PanelTitle(text: String) {
+    val lines = remember(text) { text.lines().filter(String::isNotBlank) }
+    Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+        lines.forEachIndexed { index, line ->
+            Text(
+                text = line,
+                color = if (index == 0) TrafikuText else TrafikuMutedText,
+                fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Medium,
+                maxLines = 1,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = if (index == 0) 23.sp else 16.sp,
+                    lineHeight = if (index == 0) 27.sp else 19.sp,
+                ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun PanelButtonLabel(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    val lines = remember(text) { text.lines().filter(String::isNotBlank) }
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+    ) {
+        lines.forEachIndexed { index, line ->
+            Text(
+                text = line,
+                fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
+                maxLines = 1,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontSize = if (index == 0) 16.sp else 14.sp,
+                    lineHeight = if (index == 0) 20.sp else 17.sp,
+                ),
+            )
+        }
+    }
 }
